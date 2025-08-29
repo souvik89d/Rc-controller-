@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon RC Car Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1a30 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: rgba(10, 15, 30, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.2);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 200, 255, 0.3);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(0, 200, 255, 0.7);
+            color: #00ccff;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .battery .indicator-dot {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .connection .indicator-dot {
+            background: #00aaff;
+            box-shadow: 0 0 10px #00aaff;
+        }
+
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .joystick-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .joystick-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            color: #00ccff;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+        }
+
+        .joystick {
+            width: 150px;
+            height: 150px;
+            background: rgba(20, 30, 50, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #00aaff;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .joystick::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 170, 255, 0.5);
+        }
+
+        .joystick-handle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00aaff 0%, #0077ff 100%);
+            border-radius: 50%;
+            position: relative;
+            cursor: move;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.7);
+            transition: transform 0.1s ease;
+        }
+
+        .joystick-handle:active {
+            transform: scale(0.95);
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(20, 30, 50, 0.7);
+            border: 2px solid;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .power-btn {
+            border-color: #ff3366;
+            color: #ff3366;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+        }
+
+        .lights-btn {
+            border-color: #ffcc00;
+            color: #ffcc00;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+        }
+
+        .horn-btn {
+            border-color: #00cc99;
+            color: #00cc99;
+            box-shadow: 0 0 15px rgba(0, 204, 153, 0.5);
+        }
+
+        .bottom-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px 20px;
+            border-radius: 30px;
+            background: rgba(20, 30, 50, 0.7);
+            border: 2px solid #00ccff;
+            color: #00ccff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+        }
+
+        .mode-btn:active, .mode-btn.active {
+            background: rgba(0, 200, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.7);
+        }
+
+        .emergency-btn {
+            padding: 12px 20px;
+            border-radius: 30px;
+            background: rgba(20, 30, 50, 0.7);
+            border: 2px solid #ff3366;
+            color: #ff3366;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .emergency-btn:active {
+            background: rgba(255, 51, 102, 0.2);
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.7);
+        }
+
+        .speed-meter {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .meter-gauge {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .meter-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            color: #00ccff;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .controls-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .joystick {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .joystick-handle {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .speed-meter {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        /* Animation for connection status */
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .connection .indicator-dot {
+            animation: pulse 2s infinite;
+        }
+
+        /* Speed meter SVG styling */
+        .speed-arc {
+            fill: none;
+            stroke: #00ccff;
+            stroke-width: 10;
+            stroke-linecap: round;
+            filter: url(#glow);
+        }
+
+        /* Neon glow effect */
+        .neon-text {
+            text-shadow: 0 0 5px #00ccff, 0 0 10px #00ccff, 0 0 15px #00ccff;
+        }
+
+        /* Keyboard shortcut hint */
+        .keyboard-hints {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .key-hint {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            border: 1px solid rgba(0, 200, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo neon-text">NEXGEN RC</div>
+            <div class="status-indicators">
+                <div class="indicator battery">
+                    <div class="indicator-dot"></div>
+                    <span>100%</span>
+                </div>
+                <div class="indicator connection">
+                    <div class="indicator-dot"></div>
+                    <span>Connected</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="top-controls">
+            <div class="control-btn power-btn">⏻</div>
+            <div class="control-btn lights-btn">💡</div>
+            <div class="control-btn horn-btn">📢</div>
+        </div>
+
+        <div class="controls-container">
+            <div class="joystick-container">
+                <div class="joystick-label">MOVEMENT</div>
+                <div class="joystick">
+                    <div class="joystick-handle" id="left-joystick"></div>
+                </div>
+            </div>
+
+            <div class="speed-meter">
+                <svg class="meter-gauge" viewBox="0 0 100 100">
+                    <defs>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <circle class="speed-arc" cx="50" cy="50" r="40" pathLength="100" 
+                            stroke-dasharray="100" stroke-dashoffset="30"></circle>
+                    <text class="meter-value" x="50" y="55">0 MPH</text>
+                </svg>
+            </div>
+
+            <div class="joystick-container">
+                <div class="joystick-label">CAMERA</div>
+                <div class="joystick">
+                    <div class="joystick-handle" id="right-joystick"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-controls">
+            <div class="mode-btn">LOW</div>
+            <div class="mode-btn active">MEDIUM</div>
+            <div class="mode-btn">HIGH</div>
+            <div class="emergency-btn">EMERGENCY STOP</div>
+        </div>
+
+        <div class="keyboard-hints">
+            <div class="key-hint">W/A/S/D - Movement</div>
+            <div class="key-hint">Space - Emergency Stop</div>
+            <div class="key-hint">H - Horn</div>
+            <div class="key-hint">L - Lights</div>
+        </div>
+
+        <div class="instructions">
+            <p>Use the joysticks or keyboard controls to operate your RC car</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Joystick functionality
+            const leftJoystick = document.getElementById('left-joystick');
+            const rightJoystick = document.getElementById('right-joystick');
+            const speedValue = document.querySelector('.meter-value');
+            
+            // Make joysticks draggable
+            makeDraggable(leftJoystick);
+            makeDraggable(rightJoystick);
+            
+            function makeDraggable(element) {
+                let isDragging = false;
+                let startX, startY;
+                
+                element.addEventListener('mousedown', startDrag);
+                element.addEventListener('touchstart', startDrag);
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag);
+                
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchend', stopDrag);
+                
+                function startDrag(e) {
+                    e.preventDefault();
+                    isDragging = true;
+                    
+                    if (e.type === 'touchstart') {
+                        startX = e.touches[0].clientX;
+                        startY = e.touches[0].clientY;
+                    } else {
+                        startX = e.clientX;
+                        startY = e.clientY;
+                    }
+                }
+                
+                function drag(e) {
+                    if (!isDragging) return;
+                    
+                    let currentX, currentY;
+                    
+                    if (e.type === 'touchmove') {
+                        currentX = e.touches[0].clientX;
+                        currentY = e.touches[0].clientY;
+                    } else {
+                        currentX = e.clientX;
+                        currentY = e.clientY;
+                    }
+                    
+                    const joystick = element.parentElement;
+                    const joystickRect = joystick.getBoundingClientRect();
+                    const centerX = joystickRect.left + joystickRect.width / 2;
+                    const centerY = joystickRect.top + joystickRect.height / 2;
+                    
+                    let deltaX = currentX - centerX;
+                    let deltaY = currentY - centerY;
+                    
+                    // Calculate distance from center
+                    const distance = Math.min(
+                        Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+                        joystickRect.width / 2 - element.offsetWidth / 2
+                    );
+                    
+                    // Calculate angle
+                    const angle = Math.atan2(deltaY, deltaX);
+                    
+                    // Set new position
+                    element.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                    
+                    // Update speed meter based on left joystick position
+                    if (element === leftJoystick) {
+                        const speed = Math.round((distance / (joystickRect.width / 2 - element.offsetWidth / 2)) * 100);
+                        speedValue.textContent = `${speed} MPH`;
+                        
+                        // Update speed arc
+                        const arc = document.querySelector('.speed-arc');
+                        arc.style.strokeDashoffset = 100 - speed;
+                    }
+                }
+                
+                function stopDrag() {
+                    isDragging = false;
+                    
+                    // Return to center with smooth animation
+                    element.style.transition = 'transform 0.3s ease-out';
+                    element.style.transform = 'translate(0, 0)';
+                    
+                    // Reset speed when joystick returns to center
+                    if (element === leftJoystick) {
+                        setTimeout(() => {
+                            speedValue.textContent = '0 MPH';
+                            const arc = document.querySelector('.speed-arc');
+                            arc.style.transition = 'stroke-dashoffset 0.3s ease-out';
+                            arc.style.strokeDashoffset = 100;
+                        }, 300);
+                    }
+                    
+                    // Remove transition after animation completes
+                    setTimeout(() => {
+                        element.style.transition = '';
+                        if (element === leftJoystick) {
+                            const arc = document.querySelector('.speed-arc');
+                            arc.style.transition = '';
+                        }
+                    }, 300);
+                }
+            }
+            
+            // Button functionality
+            const powerBtn = document.querySelector('.power-btn');
+            const lightsBtn = document.querySelector('.lights-btn');
+            const hornBtn = document.querySelector('.horn-btn');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const emergencyBtn = document.querySelector('.emergency-btn');
+            
+            let lightsOn = false;
+            let powerOn = true;
+            
+            powerBtn.addEventListener('click', function() {
+                powerOn = !powerOn;
+                this.style.boxShadow = powerOn ? 
+                    '0 0 15px rgba(255, 51, 102, 0.5)' : 
+                    '0 0 5px rgba(255, 51, 102, 0.2)';
+                this.style.opacity = powerOn ? '1' : '0.5';
+            });
+            
+            lightsBtn.addEventListener('click', function() {
+                lightsOn = !lightsOn;
+                this.style.boxShadow = lightsOn ? 
+                    '0 0 20px rgba(255, 204, 0, 0.8)' : 
+                    '0 0 15px rgba(255, 204, 0, 0.5)';
+            });
+            
+            hornBtn.addEventListener('click', function() {
+                this.style.boxShadow = '0 0 20px rgba(0, 204, 153, 0.8)';
+                setTimeout(() => {
+                    this.style.boxShadow = '0 0 15px rgba(0, 204, 153, 0.5)';
+                }, 300);
+            });
+            
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            emergencyBtn.addEventListener('click', function() {
+                this.style.boxShadow = '0 0 25px rgba(255, 51, 102, 0.8)';
+                
+                // Reset joysticks
+                leftJoystick.style.transition = 'transform 0.5s ease-out';
+                rightJoystick.style.transition = 'transform 0.5s ease-out';
+                leftJoystick.style.transform = 'translate(0, 0)';
+                rightJoystick.style.transform = 'translate(0, 0)';
+                
+                // Reset speed
+                speedValue.textContent = '0 MPH';
+                const arc = document.querySelector('.speed-arc');
+                arc.style.transition = 'stroke-dashoffset 0.5s ease-out';
+                arc.style.strokeDashoffset = 100;
+                
+                setTimeout(() => {
+                    this.style.boxShadow = '0 0 15px rgba(255, 51, 102, 0.3)';
+                    leftJoystick.style.transition = '';
+                    rightJoystick.style.transition = '';
+                    arc.style.transition = '';
+                }, 500);
+            });
+            
+            // Keyboard controls
+            document.addEventListener('keydown', function(e) {
+                // WASD for movement
+                if (e.key === 'w' || e.key === 'W') {
+                    simulateJoystickMovement(leftJoystick, 0, -40);
+                } else if (e.key === 'a' || e.key === 'A') {
+                    simulateJoystickMovement(leftJoystick, -40, 0);
+                } else if (e.key === 's' || e.key === 'S') {
+                    simul
